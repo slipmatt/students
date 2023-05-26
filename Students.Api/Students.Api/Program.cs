@@ -5,6 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Students.Api.Authentication;
+using Students.Api.Data;
+using Students.Api.Interfaces;
+using Students.Api.Repository;
+using Students.Api.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,11 +19,15 @@ builder.Services.AddControllers();
 
 // For Entity Framework  
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
-
+builder.Services.AddDbContext<StudentDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
 // For Identity  
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+//Dependency Injection
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Adding Authentication  
 builder.Services.AddAuthentication(options =>
@@ -80,6 +88,7 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
